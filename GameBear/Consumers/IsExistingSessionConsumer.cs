@@ -13,7 +13,8 @@ namespace GameBear.Consumers
         private readonly IGameDataGateway _gameDataGateway;
         private readonly IRequestGameCheckExistingSession _requestGameCheckExistingSessionUseCase;
 
-        public IsExistingSessionConsumer(IGameDataGateway gameDataGateway,IRequestGameCheckExistingSession requestGameCheckExistingSessionUseCase )
+        public IsExistingSessionConsumer(IGameDataGateway gameDataGateway,
+            IRequestGameCheckExistingSession requestGameCheckExistingSessionUseCase)
         {
             _gameDataGateway = gameDataGateway;
             _requestGameCheckExistingSessionUseCase = requestGameCheckExistingSessionUseCase;

@@ -17,9 +17,10 @@ namespace GameBear.UseCases.RequestGameCheckExistingSession
             {
                 throw new InvalidSessionIDException();
             }
+
             if (InvalidMessageID(requestGameIsSessionIDInUse))
             {
-                throw new InvalidMessageException();
+                throw new InvalidMessageIDException();
             }
 
             if (gameDataGateway.IsExistingSession(requestGameIsSessionIDInUse.SessionID))
@@ -27,7 +28,7 @@ namespace GameBear.UseCases.RequestGameCheckExistingSession
                 publishEndpoint.Publish(new RequestGameSessionFound
                 {
                     SessionID = requestGameIsSessionIDInUse.SessionID,
-                    MessageID =  requestGameIsSessionIDInUse.MessageID
+                    MessageID = requestGameIsSessionIDInUse.MessageID
                 });
             }
             else
@@ -44,13 +45,14 @@ namespace GameBear.UseCases.RequestGameCheckExistingSession
         {
             return requestGameIsSessionIDInUse.SessionID == null ||
                    string.IsNullOrEmpty(requestGameIsSessionIDInUse.SessionID) ||
-                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.SessionID) ;
+                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.SessionID);
         }
+
         private static bool InvalidMessageID(IRequestGameIsSessionIDInUse requestGameIsSessionIDInUse)
         {
             return requestGameIsSessionIDInUse.MessageID == null ||
                    string.IsNullOrEmpty(requestGameIsSessionIDInUse.MessageID) ||
-                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.MessageID) ;
+                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.MessageID);
         }
     }
 }

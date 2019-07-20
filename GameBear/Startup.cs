@@ -19,7 +19,7 @@ namespace GameBear
     public class Startup
     {
         public IConfiguration Configuration { get; }
-        
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -30,9 +30,9 @@ namespace GameBear
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             AddUseCases(services);
-            
+
             services.AddScoped<IsExistingSessionConsumer>();
-            
+
             AddConsumers(services);
 
             string rabbitMQHost = $"rabbitmq://{Environment.GetEnvironmentVariable("RABBITMQ_HOST")}";
@@ -57,12 +57,14 @@ namespace GameBear
             services.AddSingleton<IHostedService, BusService>();
         }
 
-        private static void SetEndPoints(IRabbitMqBusFactoryConfigurator cfg, IRabbitMqHost host, IServiceProvider provider)
+        private static void SetEndPoints(IRabbitMqBusFactoryConfigurator cfg, IRabbitMqHost host,
+            IServiceProvider provider)
         {
             SetEndpointForRequestIsSessionIDInUse(cfg, host, provider);
         }
 
-        private static void SetEndpointForRequestIsSessionIDInUse(IRabbitMqBusFactoryConfigurator cfg, IRabbitMqHost host,
+        private static void SetEndpointForRequestIsSessionIDInUse(IRabbitMqBusFactoryConfigurator cfg,
+            IRabbitMqHost host,
             IServiceProvider provider)
         {
             cfg.ReceiveEndpoint(host, "IsExistingSession", e =>

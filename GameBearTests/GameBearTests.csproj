@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GameBear\GameBear.csproj" />
+        <ProjectReference Include="..\GameBear\GameBear.csproj" />
     </ItemGroup>
 
 </Project>
