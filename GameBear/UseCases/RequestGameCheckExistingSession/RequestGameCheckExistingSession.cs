@@ -17,16 +17,26 @@ namespace GameBear.UseCases.RequestGameCheckExistingSession
             {
                 throw new InvalidSessionIDException();
             }
+            if (InvalidMessageID(requestGameIsSessionIDInUse))
+            {
+                throw new InvalidMessageException();
+            }
 
             if (gameDataGateway.IsExistingSession(requestGameIsSessionIDInUse.SessionID))
             {
-                Console.WriteLine("Publishing IRequestGameSessionFound ");
-                publishEndpoint.Publish(new RequestGameSessionFound {SessionID = requestGameIsSessionIDInUse.SessionID});
+                publishEndpoint.Publish(new RequestGameSessionFound
+                {
+                    SessionID = requestGameIsSessionIDInUse.SessionID,
+                    MessageID =  requestGameIsSessionIDInUse.MessageID
+                });
             }
             else
             {
-                Console.WriteLine("Publishing IRequestGameSessionNotFound ");
-                publishEndpoint.Publish(new RequestGameSessionNotFound {SessionID = requestGameIsSessionIDInUse.SessionID});
+                publishEndpoint.Publish(new RequestGameSessionNotFound
+                {
+                    SessionID = requestGameIsSessionIDInUse.SessionID,
+                    MessageID = requestGameIsSessionIDInUse.MessageID
+                });
             }
         }
 
@@ -34,7 +44,13 @@ namespace GameBear.UseCases.RequestGameCheckExistingSession
         {
             return requestGameIsSessionIDInUse.SessionID == null ||
                    string.IsNullOrEmpty(requestGameIsSessionIDInUse.SessionID) ||
-                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.SessionID);
+                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.SessionID) ;
+        }
+        private static bool InvalidMessageID(IRequestGameIsSessionIDInUse requestGameIsSessionIDInUse)
+        {
+            return requestGameIsSessionIDInUse.MessageID == null ||
+                   string.IsNullOrEmpty(requestGameIsSessionIDInUse.MessageID) ||
+                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.MessageID) ;
         }
     }
 }

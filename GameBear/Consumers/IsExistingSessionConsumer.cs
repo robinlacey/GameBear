@@ -15,8 +15,6 @@ namespace GameBear.Consumers
 
         public IsExistingSessionConsumer(IGameDataGateway gameDataGateway,IRequestGameCheckExistingSession requestGameCheckExistingSessionUseCase )
         {
-            Console.WriteLine("DataGateWay is null?" + (gameDataGateway == null));
-            Console.WriteLine("DataGateWay type" + gameDataGateway.GetType());
             _gameDataGateway = gameDataGateway;
             _requestGameCheckExistingSessionUseCase = requestGameCheckExistingSessionUseCase;
         }
