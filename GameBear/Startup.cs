@@ -1,4 +1,6 @@
 ﻿using System;
+using DealerBear.Adaptor;
+using DealerBear.Adaptor.Interface;
 using GameBear.Consumers;
 using GameBear.Gateways;
 using GameBear.Gateways.Interface;
@@ -53,7 +55,8 @@ namespace GameBear
             services.AddSingleton<ISendEndpointProvider>(provider => provider.GetRequiredService<IBusControl>());
             services.AddSingleton<IBus>(provider => provider.GetRequiredService<IBusControl>());
             AddRequestClients(services);
-
+            AddAdaptors(services);
+            
             services.AddSingleton<IHostedService, BusService>();
         }
 
@@ -96,10 +99,14 @@ namespace GameBear
         {
             services.AddSingleton<IGameDataGateway, InMemoryGameDataGateway>();
         }
+        private static void AddAdaptors(IServiceCollection services)
+        {
+            services.AddScoped<IPublishMessageAdaptor, PublishMessageMassTransitAdaptor>();
+        }
 
         private static void AddUseCases(IServiceCollection services)
         {
-            services.AddScoped<IRequestGameCheckExistingSession, RequestGameCheckExistingSession>();
+            services.AddScoped<IIsGameSessionInProgress, IsGameSessionInProgress>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

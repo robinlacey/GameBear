@@ -1,28 +1,27 @@
-using System;
+using DealerBear.Adaptor.Interface;
 using GameBear.Exceptions;
 using GameBear.Gateways.Interface;
 using GameBear.Messages;
 using GameBear.UseCases.RequestGameCheckExistingSession.Interface;
-using MassTransit;
 using Messages;
 
 namespace GameBear.UseCases.RequestGameCheckExistingSession
 {
-    public class RequestGameCheckExistingSession : IRequestGameCheckExistingSession
+    public class IsGameSessionInProgress : IIsGameSessionInProgress
     {
         public void Execute(IRequestGameIsSessionIDInUse requestGameIsSessionIDInUse, IGameDataGateway gameDataGateway,
-            IPublishEndpoint publishEndpoint)
+            IPublishMessageAdaptor publishEndpoint)
         {
             if (InvalidSessionID(requestGameIsSessionIDInUse))
             {
                 throw new InvalidSessionIDException();
             }
-
+            
             if (InvalidMessageID(requestGameIsSessionIDInUse))
             {
                 throw new InvalidMessageIDException();
             }
-
+       
             if (gameDataGateway.IsExistingSession(requestGameIsSessionIDInUse.SessionID))
             {
                 publishEndpoint.Publish(new RequestGameSessionFound

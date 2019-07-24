@@ -1,12 +1,12 @@
+using DealerBear.Adaptor.Interface;
 using GameBear.Gateways.Interface;
-using MassTransit;
 using Messages;
 
 namespace GameBear.UseCases.RequestGameCheckExistingSession.Interface
 {
-    public interface IRequestGameCheckExistingSession
+    public interface IIsGameSessionInProgress
     {
         void Execute(IRequestGameIsSessionIDInUse requestGameIsSessionIDInUse, IGameDataGateway gameDataGateway,
-            IPublishEndpoint publishEndpoint);
+            IPublishMessageAdaptor publishEndpoint);
     }
 }
