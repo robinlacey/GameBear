@@ -1,3 +1,4 @@
+using GameBear.Data;
 using Messages;
 
 namespace GameBear.Gateways.Interface

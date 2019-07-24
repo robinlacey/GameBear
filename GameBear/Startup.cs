@@ -1,11 +1,14 @@
 ﻿using System;
 using DealerBear.Adaptor;
 using DealerBear.Adaptor.Interface;
+using DealerBear.Messages;
 using GameBear.Consumers;
 using GameBear.Gateways;
 using GameBear.Gateways.Interface;
 using GameBear.UseCases.RequestGameCheckExistingSession;
 using GameBear.UseCases.RequestGameCheckExistingSession.Interface;
+using GameBear.UseCases.SaveNewGameData;
+using GameBear.UseCases.SaveNewGameData.Interface;
 using GreenPipes;
 using MassTransit;
 using MassTransit.RabbitMqTransport;
@@ -65,6 +68,21 @@ namespace GameBear
         {
             SetEndpointForRequestIsSessionIDInUse(cfg, host, provider);
         }
+        
+        private static void SetEndpointForCreateNewGameData(IRabbitMqBusFactoryConfigurator cfg,
+            IRabbitMqHost host,
+            IServiceProvider provider)
+        {
+            cfg.ReceiveEndpoint(host, "CreateNewGameData", e =>
+            {
+                e.PrefetchCount = 16;
+                e.UseMessageRetry(x => x.Interval(2, 100));
+
+                e.Consumer<CreateNewGameDataConsumer>(provider);
+                EndpointConvention.Map<ICreateNewGameData>(e.InputAddress);
+            });
+        }
+        
 
         private static void SetEndpointForRequestIsSessionIDInUse(IRabbitMqBusFactoryConfigurator cfg,
             IRabbitMqHost host,
@@ -107,6 +125,7 @@ namespace GameBear
         private static void AddUseCases(IServiceCollection services)
         {
             services.AddScoped<IIsGameSessionInProgress, IsGameSessionInProgress>();
+            services.AddScoped<ISaveNewGameData, SaveNewGameData>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
