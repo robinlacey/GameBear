@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GameBear.Data
 {
@@ -8,5 +9,6 @@ namespace GameBear.Data
         public int Seed { get;  set; }
         public int PackVersion { get; set;  }
         public Tuple<string, float>[] CardsToAdd { get; set; }
+        public Dictionary<string, int> CurrentStats { get; set; }
     }
 }

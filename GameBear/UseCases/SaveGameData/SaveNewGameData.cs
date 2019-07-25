@@ -23,14 +23,15 @@ namespace GameBear.UseCases.SaveGameData
                 throw new InvalidCardIDException();
             }
             gameDataGateway.Save(sessionID,gameData);
-            publishMessageAdaptor.Publish(new GameResponse()
+            publishMessageAdaptor.Publish(new GameResponse
             {
                 SessionID = sessionID,
                 MessageID = messageID,
                 CardsToAdd = gameData.CardsToAdd,
                 CurrentCardID = gameData.CurrentCardID,
                 Seed = gameData.Seed,
-                PackVersion = gameData.PackVersion
+                PackVersion = gameData.PackVersion,
+                CurrentStats = gameData.CurrentStats
             });
 
         }

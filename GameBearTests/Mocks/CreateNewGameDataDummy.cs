@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DealerBear.Messages;
 
 namespace GameBearTests.Mocks
@@ -9,5 +10,6 @@ namespace GameBearTests.Mocks
         public int Seed { get; }
         public int PackVersionNumber { get; }
         public string CurrentCard { get; set; }
+        public Dictionary<string, int> StartingStats { get; set; }
     }
 }

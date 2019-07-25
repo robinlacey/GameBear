@@ -32,6 +32,7 @@ namespace GameBear.Consumers
                 context.Message.Seed, 
                 context.Message.PackVersionNumber,
                 context.Message.CurrentCard,
+                context.Message.StartingStats,
                 _saveNewGameData,
                 _sessionIDMessageHistoryGateway,
                 _gameDataGateway,

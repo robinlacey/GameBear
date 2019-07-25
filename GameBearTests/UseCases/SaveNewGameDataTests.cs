@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DealerBear.Messages;
 using GameBear.Exceptions;
 using GameBear.UseCases.SaveGameData;
@@ -81,9 +82,9 @@ namespace GameBearTests.UseCases
                 Assert.True(gameDataGatewaySpy.SaveGameData.CardsToAdd[0].Item1 == cardtoAdd);
                 Assert.True(Math.Abs(gameDataGatewaySpy.SaveGameData.CardsToAdd[0].Item2 - probability) < 0.05f);
             }
-            [TestCase("WOOF","Hello", "Scout",1,2,"The",0.5f)]
-            [TestCase("MEOW","Wag", "Dog",-1,99,"Hello",1f)]
-            public void ThenGameResponseIsPublishedWithCorrectGameData(string sessionID, string messageID, string cardID, int packVersion, int seed, string cardtoAdd, float probability)
+            [TestCase("WOOF","Hello", "Scout",1,2,"The",0.5f, "Dog",1999)]
+            [TestCase("MEOW","Wag", "Dog",-1,99,"Hello",1f,"Doggo", 1982)]
+            public void ThenGameResponseIsPublishedWithCorrectGameData(string sessionID, string messageID, string cardID, int packVersion, int seed, string cardtoAdd, float probability, string statKey, int statValue)
             {
                 GameDataGatewaySpy gameDataGatewaySpy = new GameDataGatewaySpy();
                 PublishEndPointSpy publishEndPointSpy = new PublishEndPointSpy();
@@ -98,7 +99,8 @@ namespace GameBearTests.UseCases
                         CurrentCardID = cardID,
                         Seed = seed,
                         PackVersion = packVersion,
-                        CardsToAdd = cardsToAdd
+                        CardsToAdd = cardsToAdd,
+                        CurrentStats = new Dictionary<string, int>{{statKey,statValue}}
                     },
                     gameDataGatewaySpy, 
                     publishEndPointSpy);
@@ -110,6 +112,8 @@ namespace GameBearTests.UseCases
                 Assert.True(gameResponse.CardsToAdd[0].Item1 == cardtoAdd);
                 Assert.True(gameResponse.CardsToAdd[0].Item2 == probability);
                 Assert.True(gameResponse.Seed == seed);
+                Assert.True(gameResponse.CurrentStats.ContainsKey(statKey));
+                Assert.True(gameResponse.CurrentStats[statKey] == statValue);
             }
             [TestCase("WOOF","Hello", "Scout",1,2,"The",0.5f)]
             [TestCase("MEOW","Wag", "Dog",-1,99,"Hello",1f)]

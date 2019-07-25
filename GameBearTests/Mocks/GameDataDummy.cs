@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using GameBear.Data;
 
 namespace GameBearTests.Mocks
@@ -9,5 +10,6 @@ namespace GameBearTests.Mocks
         public int Seed { get; set; }
         public int PackVersion { get;set; }
         public Tuple<string, float>[] CardsToAdd { get; set; }
+        public Dictionary<string, int> CurrentStats { get; set; }
     }
 }

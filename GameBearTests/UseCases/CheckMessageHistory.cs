@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameBear.Exceptions;
 using GameBear.Gateways.Interface;
 using GameBear.UseCases.SaveNewGameData;
@@ -10,6 +11,59 @@ namespace GameBearTests.UseCases
     {
         public class GivenInvalidInput
         {
+            public class WhenStartingStatsAreInvalid
+            {
+                [TestCase("    ")]
+                [TestCase("")]
+                public void ThenThrowsInvalidStartingStatsException(string invalidKey)
+                {
+                    CheckMessageHistory checkMessageHistoryUseCase =
+                        new CheckMessageHistory();
+                    Assert.Throws<InvalidStartingStatsException>(() =>
+                    {
+                        checkMessageHistoryUseCase.Execute(
+                            "SessionID",
+                            "MessageID", 
+                            1,
+                            2,
+                            "Current Card",  
+                            new Dictionary<string, int> {{invalidKey,1}}, 
+                            new SaveNewGameDataDummy()
+                            , new SessionIDMessageHistoryGatewaySpy(),
+                            new GameDataGatewayDummy(),
+                            new PublishEndPointDummy());
+                    });
+                    Assert.Throws<InvalidStartingStatsException>(() =>
+                    {
+                        checkMessageHistoryUseCase.Execute(
+                            "SessionID",
+                            "MessageID", 
+                            1,
+                            2,
+                            "Current Card",  
+                            null,
+                            new SaveNewGameDataDummy()
+                            , new SessionIDMessageHistoryGatewaySpy(),
+                            new GameDataGatewayDummy(),
+                            new PublishEndPointDummy());
+                    });
+                    Assert.Throws<InvalidStartingStatsException>(() =>
+                    {
+                        checkMessageHistoryUseCase.Execute(
+                            "SessionID",
+                            "MessageID",
+                            1,
+                            2,
+                            "Current Card",
+                            new Dictionary<string, int>(),
+                            new SaveNewGameDataDummy()
+                            , new SessionIDMessageHistoryGatewaySpy(),
+                            new GameDataGatewayDummy(),
+                            new PublishEndPointDummy());
+                    });
+                    
+                }
+            }
             public class WhenSessionIDIsInvalid
             {
                 [TestCase("    ")]
@@ -27,6 +81,7 @@ namespace GameBearTests.UseCases
                             1,
                             2,
                             "Current Card",
+                            new Dictionary<string, int> {{"Dog",1}}, 
                             new SaveNewGameDataDummy(),
                             new SessionIDMessageHistoryGatewaySpy(),
                             new GameDataGatewayDummy(),
@@ -50,7 +105,8 @@ namespace GameBearTests.UseCases
                             "SessionID",
                             messageID, 1,
                             2,
-                            "Current Card",
+                            "Current Card",  
+                            new Dictionary<string, int> {{"Dog",1}}, 
                             new SaveNewGameDataDummy()
                             , new SessionIDMessageHistoryGatewaySpy(),
                             new GameDataGatewayDummy(),
@@ -81,6 +137,7 @@ namespace GameBearTests.UseCases
                             1,
                             1,
                             "CardID",
+                            new Dictionary<string, int> {{"Dog",1}}, 
                             new SaveNewGameDataDummy(),
                             spy,
                             gameDataGatewayStub,
@@ -105,6 +162,7 @@ namespace GameBearTests.UseCases
                             1,
                             1,
                             "CardID",
+                            new Dictionary<string, int> {{"Dog",1}}, 
                             spy,
                             stub,
                             gameDataGatewayStub,
@@ -123,7 +181,7 @@ namespace GameBearTests.UseCases
                         CheckMessageHistory checkMessageHistoryUseCase = new CheckMessageHistory();
                         IGameDataGateway gameDataGatewayStub = new GameDataGatewayStub(new GameDataDummy(), true);
                         SessionIDMessageHistoryGatewaySpy spy = new SessionIDMessageHistoryGatewaySpy();
-                        checkMessageHistoryUseCase.Execute(sessionID, "MessageID", 1, 1, "CardID",
+                        checkMessageHistoryUseCase.Execute(sessionID, "MessageID", 1, 1, "CardID",  new Dictionary<string, int> {{"Dog",1}}, 
                             new SaveNewGameDataDummy(), spy,
                             gameDataGatewayStub, new PublishEndPointDummy());
                         Assert.True(spy.GetMessageIDHistoryCalled);
@@ -138,21 +196,22 @@ namespace GameBearTests.UseCases
                             new CheckMessageHistory();
                         IGameDataGateway gameDataGatewayStub = new GameDataGatewayStub(new GameDataDummy(), true);
                         SaveNewGameDataSpy spy = new SaveNewGameDataSpy();
-                        checkMessageHistoryUseCase.Execute("SessionID", messageID, 1, 1, "CardID", spy,
+                        checkMessageHistoryUseCase.Execute("SessionID", messageID, 1, 1, "CardID",  new Dictionary<string, int> {{"Dog",1}},  spy,
                             new SessionIDMessageHistoryGatewayStub(new string[0]), gameDataGatewayStub,
                             new PublishEndPointDummy());
                         Assert.True(spy.ExecuteCalled);
                     }
 
-                    [TestCase("Scout", "The", 10, 0, "Percent Doggo")]
-                    [TestCase("Scout", "The", 0, 0, "Percent Catto")]
+                    [TestCase("Scout", "The", 10, 0, "Percent Doggo","Stat Dog", 99)]
+                    [TestCase("Scout", "The", 0, 0, "Percent Catto","Yes Dog", -100)]
                     public void ThenDataIsSaved(string sessionID, string messageID, int seed, int version,
-                        string currentCard)
+                        string currentCard, string statName, int statValue)
                     {
                         CheckMessageHistory checkMessageHistoryUseCase = new CheckMessageHistory();
                         IGameDataGateway gameDataGatewayStub = new GameDataGatewayStub(new GameDataDummy(), true);
                         SaveNewGameDataSpy saveNewGameDataSpy = new SaveNewGameDataSpy();
-                        checkMessageHistoryUseCase.Execute(sessionID, messageID, seed, version, currentCard,
+                        checkMessageHistoryUseCase.Execute(sessionID, messageID, seed, version, currentCard,  
+                            new Dictionary<string, int> {{statName,statValue}},
                             saveNewGameDataSpy,
                             new SessionIDMessageHistoryGatewayStub(new string[0]), gameDataGatewayStub,
                             new PublishEndPointDummy());
@@ -161,6 +220,8 @@ namespace GameBearTests.UseCases
                         Assert.True(saveNewGameDataSpy.GameDataToSave.Seed == seed);
                         Assert.True(saveNewGameDataSpy.GameDataToSave.PackVersion == version);
                         Assert.True(saveNewGameDataSpy.GameDataToSave.CurrentCardID == currentCard);
+                        Assert.True(saveNewGameDataSpy.GameDataToSave.CurrentStats.ContainsKey(statName));
+                        Assert.True(saveNewGameDataSpy.GameDataToSave.CurrentStats[statName] == statValue);
                     }
                 }
             }
@@ -173,7 +234,7 @@ namespace GameBearTests.UseCases
                     CheckMessageHistory checkMessageHistoryUseCase = new CheckMessageHistory();
                     IGameDataGateway gameDataGatewayStub = new GameDataGatewayStub(new GameDataDummy(), false);
                     SessionIDMessageHistoryGatewaySpy spy = new SessionIDMessageHistoryGatewaySpy();
-                    checkMessageHistoryUseCase.Execute("SessionID", "MessageID", 1, 1, "CardID",
+                    checkMessageHistoryUseCase.Execute("SessionID", "MessageID", 1, 1, "CardID",  new Dictionary<string, int> {{"Dog",1}}, 
                         new SaveNewGameDataDummy(), spy,
                         gameDataGatewayStub, new PublishEndPointDummy());
                     Assert.False(spy.GetMessageIDHistoryCalled);
@@ -185,7 +246,7 @@ namespace GameBearTests.UseCases
                     CheckMessageHistory checkMessageHistoryUseCase = new CheckMessageHistory();
                     IGameDataGateway gameDataGatewayStub = new GameDataGatewayStub(new GameDataDummy(), false);
                     SaveNewGameDataSpy saveNewGameDataSpy = new SaveNewGameDataSpy();
-                    checkMessageHistoryUseCase.Execute("SessionID", "MessageID", 1, 1, "CardID", saveNewGameDataSpy,
+                    checkMessageHistoryUseCase.Execute("SessionID", "MessageID", 1, 1, "CardID",   new Dictionary<string, int> {{"Dog",1}}, saveNewGameDataSpy,
                         new SessionIDMessageHistoryGatewayStub(new string[0]), gameDataGatewayStub,
                         new PublishEndPointDummy());
                     Assert.False(saveNewGameDataSpy.ExecuteCalled);

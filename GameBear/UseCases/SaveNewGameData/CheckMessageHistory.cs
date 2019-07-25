@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using DealerBear.Adaptor.Interface;
 using GameBear.Data;
@@ -16,6 +17,7 @@ namespace GameBear.UseCases.SaveNewGameData
             int seed, 
             int packVersionNumber, 
             string currentCard,
+            Dictionary<string,int> startingStats,
             ISaveNewGameData saveNewGameDataUseCase, 
             ISessionIDMessageHistoryGateway messageHistoryGateway,
             IGameDataGateway gameDataGateway, 
@@ -31,6 +33,11 @@ namespace GameBear.UseCases.SaveNewGameData
             {
                 throw new InvalidMessageIDException();
             }
+
+            if (startingStats == null || startingStats.Keys.Count == 0 || StartingStatsHasInvalidKeys(startingStats))
+            {
+                throw new InvalidStartingStatsException();
+            }
             if (!gameDataGateway.IsExistingSession(sessionID) || MessageIDIsInHistory(sessionID, messageID, messageHistoryGateway))
             {
                 return;
@@ -43,10 +50,23 @@ namespace GameBear.UseCases.SaveNewGameData
             {
                 CurrentCardID = currentCard,
                 Seed = seed,
-                PackVersion = packVersionNumber
+                PackVersion = packVersionNumber,
+                CurrentStats = startingStats
                 
             },
                 gameDataGateway,publishMessageAdaptor);
+        }
+
+        bool StartingStatsHasInvalidKeys(Dictionary<string, int> startingStats)
+        {
+            foreach (string key in startingStats.Keys)
+            {
+                if (InvalidIDString(key))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static bool MessageIDIsInHistory(string sessionID, string messageID, ISessionIDMessageHistoryGateway messageHistoryGateway)

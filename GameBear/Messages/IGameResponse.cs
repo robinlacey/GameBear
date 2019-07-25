@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace DealerBear.Messages
 {
@@ -9,6 +10,7 @@ namespace DealerBear.Messages
         string CurrentCardID { get; set; }
         int Seed { get; set; }
         int PackVersion { get; set; }
+        Dictionary<string,int> CurrentStats { get; set; }
         Tuple<string, float>[] CardsToAdd { get; set; }
     }
 }

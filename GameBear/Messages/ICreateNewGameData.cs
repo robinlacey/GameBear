@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace DealerBear.Messages
 {
     public interface ICreateNewGameData
@@ -7,5 +9,6 @@ namespace DealerBear.Messages
         int Seed { get; }
         int PackVersionNumber { get; }
         string CurrentCard { get; set; }
+        Dictionary<string,int> StartingStats { get; set; }
     }
 }
