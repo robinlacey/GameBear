@@ -8,7 +8,7 @@ namespace GameBearTests.Mocks
     {
         public string GetGameDataSessionID { get; private set; }
 
-        public IGameData GetGameData(string sessionID)
+        public IGameData Get(string sessionID)
         {
             GetGameDataSessionID = sessionID;
             return null;
@@ -20,6 +20,13 @@ namespace GameBearTests.Mocks
         {
             IsExistingSessionSessionID = sessionID;
             return false;
+        }
+        public string SaveSessionID { get; private set; }
+        public IGameData SaveGameData { get; private set; }
+        public void Save(string sessionID, IGameData data)
+        {
+            SaveSessionID = sessionID;
+            SaveGameData = data;
         }
     }
 }

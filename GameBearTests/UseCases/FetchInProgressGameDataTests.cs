@@ -4,22 +4,31 @@ namespace GameBearTests.UseCases
 {
     public class FetchInProgressGameDataTests
     {
-        [Test]
-        public void ReadsFromGateway()
+        public class GivenValidInput
         {
-            Assert.Fail();
+            [Test]
+            public void ReadsFromGateway()
+            {
+                Assert.Fail();
+            }
+
+            [Test]
+            public void PublishesGameDataAsIGameResponse()
+            {
+                Assert.Fail();
+            }
+        
+            [Test]
+            public void AddFetchInProgressGameDataToStartup()
+            {
+                Assert.Fail();
+            }
         }
 
-        [Test]
-        public void PublishesGameDataAsIGameResponse()
+        public class GivenInvalidInput
         {
-            Assert.Fail();
-        }
         
-        [Test]
-        public void AddFetchInProgressGameDataToStartup()
-        {
-            Assert.Fail();
         }
+     
     }
 }

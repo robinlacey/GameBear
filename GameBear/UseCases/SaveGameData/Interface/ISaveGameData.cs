@@ -5,6 +5,6 @@ namespace GameBear.UseCases.SaveGameData.Interface
 {
     public interface ISaveGameData
     {
-        void Execute(string sessionID, string messageID, ISessionIDMessageHistoryGateway messageHistoryGateway, IGameData gameData);
+        void Execute(string sessionID, IGameData gameData, IGameDataGateway gameDataGateway);
     }
 }

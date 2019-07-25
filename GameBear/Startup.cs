@@ -7,6 +7,8 @@ using GameBear.Gateways;
 using GameBear.Gateways.Interface;
 using GameBear.UseCases.RequestGameCheckExistingSession;
 using GameBear.UseCases.RequestGameCheckExistingSession.Interface;
+using GameBear.UseCases.SaveGameData;
+using GameBear.UseCases.SaveGameData.Interface;
 using GameBear.UseCases.SaveNewGameData;
 using GameBear.UseCases.SaveNewGameData.Interface;
 using GreenPipes;
@@ -67,6 +69,7 @@ namespace GameBear
             IServiceProvider provider)
         {
             SetEndpointForRequestIsSessionIDInUse(cfg, host, provider);
+            SetEndpointForCreateNewGameData(cfg, host, provider);
         }
         
         private static void SetEndpointForCreateNewGameData(IRabbitMqBusFactoryConfigurator cfg,
@@ -110,6 +113,7 @@ namespace GameBear
             {
                 // add the consumer to the container
                 x.AddConsumer<IsExistingSessionConsumer>();
+                x.AddConsumer<CreateNewGameDataConsumer>();
             });
         }
 
@@ -125,7 +129,8 @@ namespace GameBear
         private static void AddUseCases(IServiceCollection services)
         {
             services.AddScoped<IIsGameSessionInProgress, IsGameSessionInProgress>();
-            services.AddScoped<ISaveNewGameData, SaveNewGameData>();
+            services.AddScoped<CheckMessageHistory, CheckMessageHistory>();
+            services.AddScoped<ISaveGameData, SaveGameData>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

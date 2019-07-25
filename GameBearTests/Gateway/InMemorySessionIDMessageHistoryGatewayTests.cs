@@ -7,7 +7,8 @@ namespace GameBearTests.Gateway
         [Test]
         public void TODO()
         {
-            Assert.Fail();
+            
+            Assert.Fail("ALWAYS RETURN EMPTY ARRAY");
         }
     }
 }

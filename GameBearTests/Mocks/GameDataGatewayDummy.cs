@@ -6,8 +6,13 @@ namespace GameBearTests.Mocks
 {
     public class GameDataGatewayDummy : IGameDataGateway
     {
-        public IGameData GetGameData(string sessionID) => null;
+        public IGameData Get(string sessionID) => null;
 
         public bool IsExistingSession(string sessionID) => false;
+
+        public void Save(string sessionID, IGameData data)
+        {
+            
+        }
     }
 }
