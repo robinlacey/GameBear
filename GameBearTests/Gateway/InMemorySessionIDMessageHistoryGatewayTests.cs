@@ -9,6 +9,7 @@ namespace GameBearTests.Gateway
         {
             
             Assert.Fail("ALWAYS RETURN EMPTY ARRAY");
+            Assert.Fail("ALWAYS RETURN EMPTY ARRAY");
         }
     }
 }

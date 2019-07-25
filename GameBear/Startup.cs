@@ -130,7 +130,7 @@ namespace GameBear
         {
             services.AddScoped<IIsGameSessionInProgress, IsGameSessionInProgress>();
             services.AddScoped<CheckMessageHistory, CheckMessageHistory>();
-            services.AddScoped<ISaveGameData, SaveGameData>();
+            services.AddScoped<ISaveNewGameData, SaveNewGameData>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

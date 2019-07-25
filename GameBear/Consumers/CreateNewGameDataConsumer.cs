@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using DealerBear.Adaptor.Interface;
 using DealerBear.Messages;
 using GameBear.Gateways.Interface;
 using GameBear.UseCases.SaveGameData.Interface;
@@ -11,13 +12,15 @@ namespace GameBear.Consumers
     {
         private readonly ICheckMessageHistory _checkMessageHistoryUseCase;
         private readonly IGameDataGateway _gameDataGateway;
-        private readonly ISaveGameData _saveGameData;
+        private readonly ISaveNewGameData _saveNewGameData;
         private readonly ISessionIDMessageHistoryGateway _sessionIDMessageHistoryGateway;
+        private readonly IPublishMessageAdaptor _publishMessageAdaptor;
 
-        public CreateNewGameDataConsumer(ICheckMessageHistory checkMessageHistoryUseCase, IGameDataGateway gameDataGateway,ISaveGameData saveGameData, ISessionIDMessageHistoryGateway sessionIDMessageHistoryGateway)
+        public CreateNewGameDataConsumer(ICheckMessageHistory checkMessageHistoryUseCase, IGameDataGateway gameDataGateway,ISaveNewGameData saveNewGameData, ISessionIDMessageHistoryGateway sessionIDMessageHistoryGateway, IPublishMessageAdaptor publishMessageAdaptor)
         {
-            _saveGameData = saveGameData;
+            _saveNewGameData = saveNewGameData;
             _sessionIDMessageHistoryGateway = sessionIDMessageHistoryGateway;
+            _publishMessageAdaptor = publishMessageAdaptor;
             _checkMessageHistoryUseCase = checkMessageHistoryUseCase;
             _gameDataGateway = gameDataGateway;
         }
@@ -29,9 +32,10 @@ namespace GameBear.Consumers
                 context.Message.Seed, 
                 context.Message.PackVersionNumber,
                 context.Message.CurrentCard,
-                _saveGameData,
+                _saveNewGameData,
                 _sessionIDMessageHistoryGateway,
-                _gameDataGateway );
+                _gameDataGateway,
+                _publishMessageAdaptor );
         }
     }
 }

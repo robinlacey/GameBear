@@ -1,3 +1,4 @@
+using DealerBear.Adaptor.Interface;
 using DealerBear.Messages;
 using GameBear.Gateways.Interface;
 using GameBear.UseCases.SaveGameData.Interface;
@@ -12,8 +13,9 @@ namespace GameBear.UseCases.SaveNewGameData.Interface
             int seed, 
             int packVersionNumber, 
             string currentCard,
-            ISaveGameData saveGameDataUseCase, 
+            ISaveNewGameData saveNewGameDataUseCase, 
             ISessionIDMessageHistoryGateway messageHistoryGateway, 
-            IGameDataGateway gameDataGateway );
+            IGameDataGateway gameDataGateway,
+            IPublishMessageAdaptor publishMessageAdaptor);
     }
 }
