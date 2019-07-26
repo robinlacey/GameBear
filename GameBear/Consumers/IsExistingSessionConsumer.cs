@@ -23,7 +23,7 @@ namespace GameBear.Consumers
 
         public async Task Consume(ConsumeContext<IRequestGameIsSessionIDInUse> context)
         {
-            _isGameSessionInProgressUseCase.Execute(context.Message, _gameDataGateway, _publishMessageAdaptor);
+            _isGameSessionInProgressUseCase.Execute(context.Message.SessionID,context.Message.MessageID);
         }
     }
 }

@@ -20,8 +20,8 @@ namespace GameBearTests.UseCases
                 public void ThenThrowsInvalidSessionIDException(string sessionID)
                 {
                     SaveNewGameData saveNewGameData =
-                        new SaveNewGameData();
-                    Assert.Throws<InvalidSessionIDException>(() => {  saveNewGameData.Execute(sessionID, "MessageID", new GameDataDummy(), new GameDataGatewayDummy(), new PublishEndPointDummy());});
+                        new SaveNewGameData(new GameDataGatewayDummy(), new PublishEndPointDummy());
+                    Assert.Throws<InvalidSessionIDException>(() => {  saveNewGameData.Execute(sessionID, "MessageID", new GameDataDummy());});
                 }
                 
             }
@@ -34,8 +34,8 @@ namespace GameBearTests.UseCases
                 public void ThenThrowsInvalidMessageIDException(string messageID)
                 {
                     SaveNewGameData saveNewGameData =
-                        new SaveNewGameData();
-                    Assert.Throws<InvalidMessageIDException>(() => {  saveNewGameData.Execute("SessionID", messageID, new GameDataDummy(){CurrentCardID = "CardID"}, new GameDataGatewayDummy(), new PublishEndPointDummy());});
+                        new SaveNewGameData(new GameDataGatewayDummy(), new PublishEndPointDummy());
+                    Assert.Throws<InvalidMessageIDException>(() => {  saveNewGameData.Execute("SessionID", messageID, new GameDataDummy(){CurrentCardID = "CardID"});});
                 }
             }
             public class WhenCardIDIsInvalid
@@ -46,8 +46,8 @@ namespace GameBearTests.UseCases
                 public void ThenThrowsInvalidCardIDException(string cardID)
                 {
                     SaveNewGameData saveNewGameData =
-                        new SaveNewGameData();
-                    Assert.Throws<InvalidCardIDException>(() => {  saveNewGameData.Execute("SessionID", "MessageID", new GameDataDummy(){CurrentCardID = cardID}, new GameDataGatewayDummy(), new PublishEndPointDummy() );});
+                        new SaveNewGameData( new GameDataGatewayDummy(), new PublishEndPointDummy() );
+                    Assert.Throws<InvalidCardIDException>(() => {  saveNewGameData.Execute("SessionID", "MessageID", new GameDataDummy(){CurrentCardID = cardID});});
                 }
             }
         }
@@ -61,7 +61,8 @@ namespace GameBearTests.UseCases
                 GameDataGatewaySpy gameDataGatewaySpy = new GameDataGatewaySpy();
                 Tuple<string, float>[] cardsToAdd = {new Tuple<string, float>(cardtoAdd, probability)};
                 SaveNewGameData saveNewGameData =
-                    new SaveNewGameData();
+                    new SaveNewGameData( gameDataGatewaySpy, 
+                        new PublishEndPointDummy());
                 saveNewGameData.Execute(
                     sessionID,
                     messageID,
@@ -72,9 +73,8 @@ namespace GameBearTests.UseCases
                         Seed = seed,
                         PackVersion = packVersion,
                         CardsToAdd = cardsToAdd
-                    },
-                    gameDataGatewaySpy, 
-                    new PublishEndPointDummy());
+                    }
+                   );
                 Assert.True(gameDataGatewaySpy.SaveSessionID == sessionID);
                 Assert.True(gameDataGatewaySpy.SaveGameData.CurrentCardID == cardID);
                 Assert.True(gameDataGatewaySpy.SaveGameData.Seed == seed);
@@ -90,7 +90,8 @@ namespace GameBearTests.UseCases
                 PublishEndPointSpy publishEndPointSpy = new PublishEndPointSpy();
                 Tuple<string, float>[] cardsToAdd = {new Tuple<string, float>(cardtoAdd, probability)};
                 SaveNewGameData saveNewGameData =
-                    new SaveNewGameData();
+                    new SaveNewGameData( gameDataGatewaySpy, 
+                        publishEndPointSpy);
                 saveNewGameData.Execute(
                     sessionID,
                     messageID,
@@ -101,9 +102,8 @@ namespace GameBearTests.UseCases
                         PackVersion = packVersion,
                         CardsToAdd = cardsToAdd,
                         CurrentStats = new Dictionary<string, int>{{statKey,statValue}}
-                    },
-                    gameDataGatewaySpy, 
-                    publishEndPointSpy);
+                    }
+                   );
                 Assert.True(publishEndPointSpy.MessageObject is IGameResponse);
                 IGameResponse gameResponse = (IGameResponse) publishEndPointSpy.MessageObject;
                 Assert.True(gameResponse.Seed == seed);
@@ -123,7 +123,8 @@ namespace GameBearTests.UseCases
                 PublishEndPointSpy publishEndPointSpy = new PublishEndPointSpy();
                 Tuple<string, float>[] cardsToAdd = {new Tuple<string, float>(cardtoAdd, probability)};
                 SaveNewGameData saveNewGameData =
-                    new SaveNewGameData();
+                    new SaveNewGameData(gameDataGatewaySpy, 
+                        publishEndPointSpy);
                 saveNewGameData.Execute(
                     sessionID,
                     messageID,
@@ -133,9 +134,8 @@ namespace GameBearTests.UseCases
                         Seed = seed,
                         PackVersion = packVersion,
                         CardsToAdd = cardsToAdd
-                    },
-                    gameDataGatewaySpy, 
-                    publishEndPointSpy);
+                    }
+                  );
                 Assert.True(publishEndPointSpy.MessageObject is IGameResponse);
                 IGameResponse gameResponse = (IGameResponse) publishEndPointSpy.MessageObject;
                 Assert.True(gameResponse.SessionID == sessionID);

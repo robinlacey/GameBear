@@ -8,7 +8,15 @@ namespace GameBear.UseCases.FetchInProgressGameData
 {
     public class FetchInProgressGameData:IFetchInProgressGameData
     {
-        public IGameResponse Execute(string sessionID, IGameDataGateway gateway,IPublishMessageAdaptor publishMessageAdaptor )
+        private readonly IGameDataGateway _gateway;
+        private readonly IPublishMessageAdaptor _publishMessageAdaptor;
+
+        public FetchInProgressGameData(IGameDataGateway gateway, IPublishMessageAdaptor publishMessageAdaptor)
+        {
+            _gateway = gateway;
+            _publishMessageAdaptor = publishMessageAdaptor;
+        }
+        public IGameResponse Execute(string sessionID )
         {
             throw new NotImplementedException();
         }

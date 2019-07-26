@@ -11,17 +11,25 @@ namespace GameBear.UseCases.SaveNewGameData
 {
     public class CheckMessageHistory:ICheckMessageHistory
     {
+        private readonly ISaveNewGameData _saveNewGameDataUseCase;
+        private readonly ISessionIDMessageHistoryGateway _messageHistoryGateway;
+        private readonly IGameDataGateway _gameDataGateway;
+
+        public CheckMessageHistory(ISaveNewGameData saveNewGameDataUseCase,
+            ISessionIDMessageHistoryGateway messageHistoryGateway,
+            IGameDataGateway gameDataGateway)
+        {
+            _saveNewGameDataUseCase = saveNewGameDataUseCase;
+            _messageHistoryGateway = messageHistoryGateway;
+            _gameDataGateway = gameDataGateway;
+        }
         public void Execute(
             string sessionID, 
             string messageID, 
             int seed, 
             int packVersionNumber, 
             string currentCard,
-            Dictionary<string,int> startingStats,
-            ISaveNewGameData saveNewGameDataUseCase, 
-            ISessionIDMessageHistoryGateway messageHistoryGateway,
-            IGameDataGateway gameDataGateway, 
-            IPublishMessageAdaptor publishMessageAdaptor)
+            Dictionary<string,int> startingStats)
         {
             
             // Check session ID and Message ID
@@ -38,12 +46,12 @@ namespace GameBear.UseCases.SaveNewGameData
             {
                 throw new InvalidStartingStatsException();
             }
-            if (!gameDataGateway.IsExistingSession(sessionID) || MessageIDIsInHistory(sessionID, messageID, messageHistoryGateway))
+            if (!_gameDataGateway.IsExistingSession(sessionID) || MessageIDIsInHistory(sessionID, messageID, _messageHistoryGateway))
             {
                 return;
             }
-            messageHistoryGateway.AddMessageIDToHistory(sessionID);
-            saveNewGameDataUseCase.Execute(
+            _messageHistoryGateway.AddMessageIDToHistory(sessionID);
+            _saveNewGameDataUseCase.Execute(
                 sessionID,
                 messageID,
                 new GameData
@@ -53,8 +61,7 @@ namespace GameBear.UseCases.SaveNewGameData
                 PackVersion = packVersionNumber,
                 CurrentStats = startingStats
                 
-            },
-                gameDataGateway,publishMessageAdaptor);
+            } );
         }
 
         bool StartingStatsHasInvalidKeys(Dictionary<string, int> startingStats)

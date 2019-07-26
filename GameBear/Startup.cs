@@ -10,7 +10,6 @@ using GameBear.UseCases.RequestGameCheckExistingSession.Interface;
 using GameBear.UseCases.SaveGameData;
 using GameBear.UseCases.SaveGameData.Interface;
 using GameBear.UseCases.SaveNewGameData;
-using GameBear.UseCases.SaveNewGameData.Interface;
 using GreenPipes;
 using MassTransit;
 using MassTransit.RabbitMqTransport;
@@ -38,7 +37,6 @@ namespace GameBear
 
             AddUseCases(services);
 
-            services.AddScoped<IsExistingSessionConsumer>();
 
             AddConsumers(services);
 
@@ -48,8 +46,8 @@ namespace GameBear
             {
                 IRabbitMqHost host = cfg.Host(new Uri(rabbitMQHost), h =>
                 {
-                    h.Username("guest");
-                    h.Password("guest");
+                    h.Username(Environment.GetEnvironmentVariable("RABBITMQ_USERNAME"));
+                    h.Password(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"));
                 });
 
                 SetEndPoints(cfg, host, provider);
@@ -105,10 +103,16 @@ namespace GameBear
         {
             services.AddScoped(provider =>
                 provider.GetRequiredService<IBus>().CreateRequestClient<IRequestGameIsSessionIDInUse>());
+            services.AddScoped(provider =>
+                provider.GetRequiredService<IBus>().CreateRequestClient<ICreateNewGameData>());
         }
 
         private static void AddConsumers(IServiceCollection services)
         {
+            
+            services.AddScoped<IsExistingSessionConsumer>();
+            services.AddScoped<CreateNewGameDataConsumer>();
+            
             services.AddMassTransit(x =>
             {
                 // add the consumer to the container
@@ -120,6 +124,7 @@ namespace GameBear
         private static void AddGateways(IServiceCollection services)
         {
             services.AddSingleton<IGameDataGateway, InMemoryGameDataGateway>();
+            services.AddSingleton<ISessionIDMessageHistoryGateway, InMemorySessionIDMessageHistoryGateway>();
         }
         private static void AddAdaptors(IServiceCollection services)
         {

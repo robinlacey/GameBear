@@ -1,7 +1,6 @@
 using GameBear.Exceptions;
 using GameBearTests.Mocks;
 using GameBear.UseCases.RequestGameCheckExistingSession;
-using GameBear.UseCases.RequestGameCheckExistingSession.Interface;
 using Messages;
 using NUnit.Framework;
 
@@ -18,12 +17,8 @@ namespace GameBearTests.UseCases
                 [TestCase(null)]
                 public void ThenThrowsInvalidSessionID(string invalidInput)
                 {
-                    IIsGameSessionInProgress isGameSessionInProgress =
-                        new IsGameSessionInProgress();
                     Assert.Throws<InvalidSessionIDException>(() =>
-                        isGameSessionInProgress.Execute(
-                            new RequestGameIsSessionIDInUseStub(invalidInput, "Scout"),
-                            new GameDataGatewayDummy(), new PublishEndPointDummy()));
+                        new IsGameSessionInProgress(new GameDataGatewayDummy(), new PublishEndPointDummy()).Execute(invalidInput, "Scout"));
                 }
             }
 
@@ -34,12 +29,9 @@ namespace GameBearTests.UseCases
                 [TestCase(null)]
                 public void ThenThrowsInvalidMessageID(string invalidInput)
                 {
-                    IIsGameSessionInProgress isGameSessionInProgress =
-                        new IsGameSessionInProgress();
                     Assert.Throws<InvalidMessageIDException>(() =>
-                        isGameSessionInProgress.Execute(
-                            new RequestGameIsSessionIDInUseStub("Scout Is Valid", invalidInput),
-                            new GameDataGatewayDummy(), new PublishEndPointDummy()));
+                        new IsGameSessionInProgress(new GameDataGatewayDummy(), new PublishEndPointDummy()).Execute(
+                            "Scout Is Valid", invalidInput));
                 }
             }
         }
@@ -52,12 +44,9 @@ namespace GameBearTests.UseCases
                 [TestCase("Is A Good Dog")]
                 public void ThenGameSessionGatewayIsExistingSessionIsCalled(string sessionID)
                 {
-                    IIsGameSessionInProgress isGameSessionInProgress =
-                        new IsGameSessionInProgress();
                     GameDataGatewaySpy spy = new GameDataGatewaySpy();
-                    isGameSessionInProgress.Execute(new RequestGameIsSessionIDInUseStub(sessionID, "Scout"),
-                        spy,
-                        new PublishEndPointDummy());
+                    new IsGameSessionInProgress(spy,
+                        new PublishEndPointDummy()).Execute(sessionID, "Scout" );
                     Assert.True(spy.IsExistingSessionSessionID == sessionID);
                 }
             }
@@ -68,12 +57,9 @@ namespace GameBearTests.UseCases
                 [TestCase("Sit")]
                 public void ThenSessionIDIsPublishedToSessionFoundQueue(string sessionID)
                 {
-                    IIsGameSessionInProgress isGameSessionInProgress =
-                        new IsGameSessionInProgress();
                     GameDataGatewayStub stub = new GameDataGatewayStub(null, true);
                     PublishEndPointSpy spy = new PublishEndPointSpy();
-                    isGameSessionInProgress.Execute(
-                        new RequestGameIsSessionIDInUseStub(sessionID, "Hello Scout"), stub, spy);
+                    new IsGameSessionInProgress(stub, spy).Execute(sessionID, "Hello Scout");
                     Assert.True(spy.MessageObject is IRequestGameSessionFound);
                     IRequestGameSessionFound messageObject = spy.MessageObject as IRequestGameSessionFound;
                     Assert.True(messageObject.SessionID == sessionID);
@@ -83,12 +69,9 @@ namespace GameBearTests.UseCases
                 [TestCase("Stay")]
                 public void ThenMessageIDIsPublishedToSessionFoundQueue(string messageID)
                 {
-                    IIsGameSessionInProgress isGameSessionInProgress =
-                        new IsGameSessionInProgress();
                     GameDataGatewayStub stub = new GameDataGatewayStub(null, true);
                     PublishEndPointSpy spy = new PublishEndPointSpy();
-                    isGameSessionInProgress.Execute(
-                        new RequestGameIsSessionIDInUseStub("Scout Is A Good Dog", messageID), stub, spy);
+                    new IsGameSessionInProgress(stub, spy).Execute("Scout Is A Good Dog", messageID);
                     Assert.True(spy.MessageObject is IRequestGameSessionFound);
                     IRequestGameSessionFound messageObject = spy.MessageObject as IRequestGameSessionFound;
                     Assert.True(messageObject.MessageID == messageID);
@@ -101,12 +84,9 @@ namespace GameBearTests.UseCases
                 [TestCase("Doesn't Like Cats")]
                 public void ThenSessionIDIsPublishedToSessionNotFoundQueue(string sessionID)
                 {
-                    IIsGameSessionInProgress isGameSessionInProgress =
-                        new IsGameSessionInProgress();
                     GameDataGatewayStub stub = new GameDataGatewayStub(null, false);
                     PublishEndPointSpy spy = new PublishEndPointSpy();
-                    isGameSessionInProgress.Execute(new RequestGameIsSessionIDInUseStub(sessionID, "Wag"), stub,
-                        spy);
+                    new IsGameSessionInProgress(stub,spy).Execute(sessionID, "Wag");
                     Assert.True(spy.MessageObject is IRequestGameSessionNotFound);
                     IRequestGameSessionNotFound messageObject = spy.MessageObject as IRequestGameSessionNotFound;
                     Assert.True(messageObject.SessionID == sessionID);
@@ -116,12 +96,9 @@ namespace GameBearTests.UseCases
                 [TestCase("Likes Shoes")]
                 public void ThenMessageIDIsPublishedToSessionNotFoundQueue(string messageID)
                 {
-                    IIsGameSessionInProgress isGameSessionInProgress =
-                        new IsGameSessionInProgress();
                     GameDataGatewayStub stub = new GameDataGatewayStub(null, false);
                     PublishEndPointSpy spy = new PublishEndPointSpy();
-                    isGameSessionInProgress.Execute(
-                        new RequestGameIsSessionIDInUseStub("Scout Is A Good Dog", messageID), stub, spy);
+                    new IsGameSessionInProgress(stub, spy).Execute("Scout Is A Good Dog", messageID);
                     Assert.True(spy.MessageObject is IRequestGameSessionNotFound);
                     IRequestGameSessionNotFound messageObject = spy.MessageObject as IRequestGameSessionNotFound;
                     Assert.True(messageObject.MessageID == messageID);

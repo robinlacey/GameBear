@@ -1,6 +1,4 @@
-using DealerBear.Adaptor.Interface;
 using GameBear.Data;
-using GameBear.Gateways.Interface;
 using GameBear.UseCases.SaveGameData.Interface;
 
 namespace GameBearTests.Mocks
@@ -11,10 +9,9 @@ namespace GameBearTests.Mocks
         public string SessionID { get; private set; }
         public string MessageID { get; private set; }
         public IGameData GameDataToSave = new GameData();
+        
 
-
-        public void Execute(string sessionID, string messageID, IGameData gameData, IGameDataGateway gameDataGateway,
-            IPublishMessageAdaptor publishMessageAdaptor)
+        public void Execute(string sessionID, string messageID, IGameData gameData)
         {
             SessionID = sessionID;
             ExecuteCalled = true;

@@ -3,55 +3,51 @@ using GameBear.Exceptions;
 using GameBear.Gateways.Interface;
 using GameBear.Messages;
 using GameBear.UseCases.RequestGameCheckExistingSession.Interface;
-using Messages;
 
 namespace GameBear.UseCases.RequestGameCheckExistingSession
 {
     public class IsGameSessionInProgress : IIsGameSessionInProgress
     {
-        public void Execute(IRequestGameIsSessionIDInUse requestGameIsSessionIDInUse, IGameDataGateway gameDataGateway,
+        private readonly IGameDataGateway _gameDataGateway;
+        private readonly IPublishMessageAdaptor _publishEndpoint;
+
+        public IsGameSessionInProgress(
+            IGameDataGateway gameDataGateway,
             IPublishMessageAdaptor publishEndpoint)
         {
-            if (InvalidSessionID(requestGameIsSessionIDInUse))
+            _gameDataGateway = gameDataGateway;
+            _publishEndpoint = publishEndpoint;
+        }
+        public void Execute(string sessionID, string messageID )
+        {
+            if (InvalidIDString(sessionID))
             {
                 throw new InvalidSessionIDException();
             }
             
-            if (InvalidMessageID(requestGameIsSessionIDInUse))
+            if (InvalidIDString(messageID))
             {
                 throw new InvalidMessageIDException();
             }
        
-            if (gameDataGateway.IsExistingSession(requestGameIsSessionIDInUse.SessionID))
+            if (_gameDataGateway.IsExistingSession(sessionID))
             {
-                publishEndpoint.Publish(new RequestGameSessionFound
+                _publishEndpoint.Publish(new RequestGameSessionFound
                 {
-                    SessionID = requestGameIsSessionIDInUse.SessionID,
-                    MessageID = requestGameIsSessionIDInUse.MessageID
+                    SessionID = sessionID,
+                    MessageID = messageID
                 });
             }
             else
             {
-                publishEndpoint.Publish(new RequestGameSessionNotFound
+                _publishEndpoint.Publish(new RequestGameSessionNotFound
                 {
-                    SessionID = requestGameIsSessionIDInUse.SessionID,
-                    MessageID = requestGameIsSessionIDInUse.MessageID
+                    SessionID = sessionID,
+                    MessageID = messageID
                 });
             }
         }
 
-        private static bool InvalidSessionID(IRequestGameIsSessionIDInUse requestGameIsSessionIDInUse)
-        {
-            return requestGameIsSessionIDInUse.SessionID == null ||
-                   string.IsNullOrEmpty(requestGameIsSessionIDInUse.SessionID) ||
-                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.SessionID);
-        }
-
-        private static bool InvalidMessageID(IRequestGameIsSessionIDInUse requestGameIsSessionIDInUse)
-        {
-            return requestGameIsSessionIDInUse.MessageID == null ||
-                   string.IsNullOrEmpty(requestGameIsSessionIDInUse.MessageID) ||
-                   string.IsNullOrWhiteSpace(requestGameIsSessionIDInUse.MessageID);
-        }
+        private static bool InvalidIDString(string id) => id == null || string.IsNullOrEmpty(id) || string.IsNullOrWhiteSpace(id);
     }
 }

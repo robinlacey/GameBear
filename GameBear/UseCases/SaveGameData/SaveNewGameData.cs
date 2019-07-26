@@ -8,7 +8,15 @@ namespace GameBear.UseCases.SaveGameData
 {
     public class SaveNewGameData:ISaveNewGameData
     {
-        public void Execute(string sessionID, string messageID, IGameData gameData, IGameDataGateway gameDataGateway, IPublishMessageAdaptor publishMessageAdaptor)
+        private readonly IGameDataGateway _gameDataGateway;
+        private readonly IPublishMessageAdaptor _publishMessageAdaptor;
+
+        public SaveNewGameData(IGameDataGateway gameDataGateway, IPublishMessageAdaptor publishMessageAdaptor)
+        {
+            _gameDataGateway = gameDataGateway;
+            _publishMessageAdaptor = publishMessageAdaptor;
+        }
+        public void Execute(string sessionID, string messageID, IGameData gameData)
         {
             if (InvalidIDString(sessionID))
             {
@@ -22,8 +30,8 @@ namespace GameBear.UseCases.SaveGameData
             {
                 throw new InvalidCardIDException();
             }
-            gameDataGateway.Save(sessionID,gameData);
-            publishMessageAdaptor.Publish(new GameResponse
+            _gameDataGateway.Save(sessionID,gameData);
+            _publishMessageAdaptor.Publish(new GameResponse
             {
                 SessionID = sessionID,
                 MessageID = messageID,
