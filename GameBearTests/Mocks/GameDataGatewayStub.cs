@@ -1,5 +1,5 @@
+using GameBear.Data;
 using GameBear.Gateways.Interface;
-using Messages;
 
 namespace GameBearTests.Mocks
 {
@@ -14,8 +14,9 @@ namespace GameBearTests.Mocks
             _isExistingSessionReturn = isExistingSessionReturn;
         }
 
-        public IGameData GetGameData(string sessionID) => _getGameDataReturn;
+        public IGameData Get(string sessionID) => _getGameDataReturn;
 
         public bool IsExistingSession(string sessionID) => _isExistingSessionReturn;
+        public void Save(string sessionID, IGameData data) { }
     }
 }

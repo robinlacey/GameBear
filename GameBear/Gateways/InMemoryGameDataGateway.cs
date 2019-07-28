@@ -1,19 +1,22 @@
+using GameBear.Data;
 using GameBear.Gateways.Interface;
-using Messages;
 
 namespace GameBear.Gateways
 {
     public class InMemoryGameDataGateway : IGameDataGateway
     {
-        public IGameData GetGameData(string sessionID)
+        public IGameData Get(string sessionID)
         {
-            return null;
             throw new System.NotImplementedException();
         }
 
         public bool IsExistingSession(string sessionID)
         {
-            return false;
+            throw new System.NotImplementedException();
+        }
+
+        public void Save(string sessionID, IGameData data)
+        {
             throw new System.NotImplementedException();
         }
     }

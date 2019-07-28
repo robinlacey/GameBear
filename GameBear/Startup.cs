@@ -1,11 +1,15 @@
 ﻿using System;
 using DealerBear.Adaptor;
 using DealerBear.Adaptor.Interface;
+using DealerBear.Messages;
 using GameBear.Consumers;
 using GameBear.Gateways;
 using GameBear.Gateways.Interface;
 using GameBear.UseCases.RequestGameCheckExistingSession;
 using GameBear.UseCases.RequestGameCheckExistingSession.Interface;
+using GameBear.UseCases.SaveGameData;
+using GameBear.UseCases.SaveGameData.Interface;
+using GameBear.UseCases.SaveNewGameData;
 using GreenPipes;
 using MassTransit;
 using MassTransit.RabbitMqTransport;
@@ -33,7 +37,6 @@ namespace GameBear
 
             AddUseCases(services);
 
-            services.AddScoped<IsExistingSessionConsumer>();
 
             AddConsumers(services);
 
@@ -43,8 +46,8 @@ namespace GameBear
             {
                 IRabbitMqHost host = cfg.Host(new Uri(rabbitMQHost), h =>
                 {
-                    h.Username("guest");
-                    h.Password("guest");
+                    h.Username(Environment.GetEnvironmentVariable("RABBITMQ_USERNAME"));
+                    h.Password(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"));
                 });
 
                 SetEndPoints(cfg, host, provider);
@@ -64,7 +67,23 @@ namespace GameBear
             IServiceProvider provider)
         {
             SetEndpointForRequestIsSessionIDInUse(cfg, host, provider);
+            SetEndpointForCreateNewGameData(cfg, host, provider);
         }
+        
+        private static void SetEndpointForCreateNewGameData(IRabbitMqBusFactoryConfigurator cfg,
+            IRabbitMqHost host,
+            IServiceProvider provider)
+        {
+            cfg.ReceiveEndpoint(host, "CreateNewGameData", e =>
+            {
+                e.PrefetchCount = 16;
+                e.UseMessageRetry(x => x.Interval(2, 100));
+
+                e.Consumer<CreateNewGameDataConsumer>(provider);
+                EndpointConvention.Map<ICreateNewGameData>(e.InputAddress);
+            });
+        }
+        
 
         private static void SetEndpointForRequestIsSessionIDInUse(IRabbitMqBusFactoryConfigurator cfg,
             IRabbitMqHost host,
@@ -84,20 +103,28 @@ namespace GameBear
         {
             services.AddScoped(provider =>
                 provider.GetRequiredService<IBus>().CreateRequestClient<IRequestGameIsSessionIDInUse>());
+            services.AddScoped(provider =>
+                provider.GetRequiredService<IBus>().CreateRequestClient<ICreateNewGameData>());
         }
 
         private static void AddConsumers(IServiceCollection services)
         {
+            
+            services.AddScoped<IsExistingSessionConsumer>();
+            services.AddScoped<CreateNewGameDataConsumer>();
+            
             services.AddMassTransit(x =>
             {
                 // add the consumer to the container
                 x.AddConsumer<IsExistingSessionConsumer>();
+                x.AddConsumer<CreateNewGameDataConsumer>();
             });
         }
 
         private static void AddGateways(IServiceCollection services)
         {
             services.AddSingleton<IGameDataGateway, InMemoryGameDataGateway>();
+            services.AddSingleton<ISessionIDMessageHistoryGateway, InMemorySessionIDMessageHistoryGateway>();
         }
         private static void AddAdaptors(IServiceCollection services)
         {
@@ -107,6 +134,8 @@ namespace GameBear
         private static void AddUseCases(IServiceCollection services)
         {
             services.AddScoped<IIsGameSessionInProgress, IsGameSessionInProgress>();
+            services.AddScoped<CheckMessageHistory, CheckMessageHistory>();
+            services.AddScoped<ISaveNewGameData, SaveNewGameData>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
